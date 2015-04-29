@@ -18,7 +18,7 @@ class Messaging implements Runnable {
 	String msg;
 	StringTokenizer st;
 	static boolean found = false;
-	String directory = "C:\\Users\\Rahul\\Desktop\\sharedFolder"; 
+	String directory = "D:\\sharedFolder"; 
 	static String files ="";
 	public Messaging (Socket s1, String msg) {
 		this.s1=s1;
@@ -42,7 +42,7 @@ class Messaging implements Runnable {
 			dout.flush();
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("IO exception");
 			}
 		boolean b = true;
 		while (b) {
@@ -53,18 +53,22 @@ class Messaging implements Runnable {
 				if (str.contains("filefound")) {
 					System.out.println(str);
 					AcceptInput.QueryHitList[AcceptInput.hitindex] = str;
+					System.out.println(AcceptInput.QueryHitList[AcceptInput.hitindex] + " " + AcceptInput.hitindex) ;
 					AcceptInput.hitindex++;
+					b=false;
 				}
 				if(str.contains("FilesList"))
 				{
+					b=false;
 					System.out.println(str);
 				}
 				//if (str==null) {
-				din.close();
+				//din.close();
 				//}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
+				System.out.println("IOException send()");
 				b=false;
 				//din.close();
 			}
@@ -78,7 +82,7 @@ class Messaging implements Runnable {
 			dout.flush();
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("IO exception try sendForward()");
 			}
 		boolean b = true;
 		while (b) {
@@ -93,11 +97,11 @@ class Messaging implements Runnable {
 				}
 				
 				//if (str==null) {
-				din.close();
+				//din.close();
 				//}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("IO Exception sendForward()");
 				b=false;
 				//din.close();
 			}
@@ -121,20 +125,23 @@ class Messaging implements Runnable {
 		   }
 		   catch(UnknownHostException e)
 		   {
-			   e.printStackTrace();
+			   System.out.println("Unknown host exception");
 		   }
 		   catch(IOException e)
 		   {
-			   e.printStackTrace();
+			   System.out.println("IO exception sendUdp");
 		   }
 	   }
 	 public static void findFile(String name,File file)
 	    {
-		 System.out.println("----Directory inside " + file +":::" +"file name: "+ name);
+		 System.out.println("----Directory inside " + file +" ::: "+"Seaching file: "+ name);
 	        File[] list = file.listFiles();
-	        if(list!=null)
+	        if(list!=null){
+	        System.out.println("----files in directory----");	
+	        
 	        for (File fil : list)
-	        { System.out.println("----files in directory:"+fil.getName());
+	        { 
+	        	System.out.println(fil.getName());
 	            if (fil.isDirectory())
 	            {
 	                findFile(name,fil);
@@ -142,33 +149,38 @@ class Messaging implements Runnable {
 	            
 	            else if (name.equalsIgnoreCase(fil.getName()))
 	            {
-	                System.out.println("----File Found at Dirctory "+fil.getParentFile());
+	                System.out.println("File Found at Dirctory: "+fil.getParentFile());
 	                found = true;
 	            }
 	        }
+	        }
+	       
 	    }
 	 public static void listOfFiles(File file)
 	    {
 		 System.out.println("----Directory inside " + file);
 	        File[] list = file.listFiles();
-	        if(list!=null)
+	        if(list!=null){
+	        	System.out.println("----files in directory----");
 	        for (File fil : list)
-	        { System.out.println("----files in directory:"+fil.getName());
+	        { System.out.println(fil.getName());
 	            if (fil.isDirectory())
 	            {
 	            	listOfFiles(fil);
 	            }
 	            
 	            {
-	            	files = files + fil.getName() + "\t";
+	            	files = files + fil.getName() + "\n";
 	            }
+	        }
 	        }
 	    }
 	public void run() {
 		boolean b=true;
-		while (b) {
+		while (b){
 			DataInputStream din;
 			try {
+				System.out.println("Listening for msg");
 				din = new DataInputStream(s2.getInputStream()); 
 				String str= din.readUTF();
 				System.out.println(str);
@@ -183,8 +195,7 @@ class Messaging implements Runnable {
 				if (token[0].equalsIgnoreCase("queryfile")) {
 					System.out.println("In queryfile");
 					found = false;
-					findFile(token[1],new File(directory));
-					
+					findFile(token[1],new File(directory));	
 					if(found){
 						System.out.println("File found in my local directory");
 						//Replying
@@ -193,33 +204,29 @@ class Messaging implements Runnable {
 						String ipAddr = testSocket.getLocalAddress().getHostAddress();
 						dout.writeUTF(token[1]+"; filefound;"+ ipAddr+";"+ P2pGnutella.udpPort );
 						dout.flush();
+						//continue;
+						//break;
 					}
 					else{
 						ConnectionList.MsgForward(str, s2);
 					}
 				}
 				else if((token[0].equalsIgnoreCase("queryallfiles"))){
-					System.out.println("queryallfiles Request received");
+					System.out.println("Queryallfiles request received");
 					DataOutputStream dout= new DataOutputStream(s2.getOutputStream());
 					listOfFiles(new File(directory));
-					System.out.println(files);
+					//System.out.println(files);
 					dout.writeUTF("FilesList: "+files);
 					dout.flush();
+					//					break;
 					
-				}else{
-					
-					
+				}else{	
 				}
 				
-					
-				//if (str==null) {
-				//din.close();
-				//}
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Connecton closed");
 				b=false;
-				//din.close();
 			}
 		}
 	}

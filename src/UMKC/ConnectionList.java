@@ -19,6 +19,7 @@ class ConnectionList extends Thread implements Runnable {
 		}		
 	}
 	
+	
 static void MsgForward (String msg1, Socket reply) {
 		
 		for (Socket tc : tcpClient) {
@@ -31,6 +32,7 @@ static void MsgForward (String msg1, Socket reply) {
 	public ConnectionList(Socket sock3) {
 		//P2pGnutella.isConnect= sock3.isConnected();
 		tcpClient[a]= sock3; //recvd client sock from accept now update array
+		System.out.println(a+ " "+tcpClient[a]);
 		a++;
 	}
 	static void maintainList(Socket sock4){
@@ -62,7 +64,7 @@ static void MsgForward (String msg1, Socket reply) {
 				}
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				System.out.println("Exception disconnect()");
 			}
 		}
 	index--;
@@ -79,7 +81,7 @@ static void MsgForward (String msg1, Socket reply) {
 		   }
 		   catch(Exception e)
 		   {
-			   e.printStackTrace();
+			   System.out.println("Exception at info()");
 		   }
 		   }
 	public void run () {

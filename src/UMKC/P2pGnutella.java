@@ -3,7 +3,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-
+//connect 192.168.1.6 4000
 public class P2pGnutella implements Runnable {
 	int i,numOfConnections;
 	public static int tcpPort, udpPort= 0;
@@ -76,9 +76,9 @@ public class P2pGnutella implements Runnable {
 			
 			//maintain a list here now to have index ipaddr, hostaddr, localport, remoteport;
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			System.out.println("UnknownHostException Client()");
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("IOException Client()");
 		}
 	}
 	public void run() {
